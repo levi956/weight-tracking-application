@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:weight_app/Services/auth.dart';
+import 'package:weight_app/controllers/controllers.dart';
 import 'package:weight_app/widgets/components.dart';
 
 class Home extends StatefulWidget {
@@ -10,25 +11,13 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final _nameController = TextEditingController();
-  final _nameController2 = TextEditingController();
-  final _ageController = TextEditingController();
-  final _weightController = TextEditingController();
-
   bool _isData = false;
-
-  clearTextInput() {
-    _nameController.clear();
-    _ageController.clear();
-    _weightController.clear();
-  }
 
   String wording =
       'In this application, you can enter your weight as time passes and view the weight anytime you want';
   @override
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
-    final _formKey1 = GlobalKey<FormState>();
 
     return Scaffold(
       appBar: AppBar(
@@ -52,7 +41,7 @@ class _HomeState extends State<Home> {
                     }
                     return null;
                   },
-                  controller: _nameController,
+                  controller: nameController,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.person),
@@ -74,7 +63,7 @@ class _HomeState extends State<Home> {
                     }
                     return null;
                   },
-                  controller: _ageController,
+                  controller: ageController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.format_list_numbered),
@@ -96,7 +85,7 @@ class _HomeState extends State<Home> {
                     }
                     return null;
                   },
-                  controller: _weightController,
+                  controller: weightController,
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.monitor_weight),
@@ -122,9 +111,9 @@ class _HomeState extends State<Home> {
 
                         // class method that reads data to cloud firestore when button is pressed
                         Auth().addUser(
-                          _nameController.text.trim(),
-                          int.parse(_ageController.text.trim()),
-                          int.parse(_weightController.text.trim()),
+                          nameController.text.trim(),
+                          int.parse(ageController.text.trim()),
+                          int.parse(weightController.text.trim()),
                         );
                         clearTextInput();
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,9 +135,9 @@ class _HomeState extends State<Home> {
 
                         // class method that updates user data to cloud firestore when button is pressed
                         Auth().updateUser(
-                          _nameController.text.trim(),
-                          int.parse(_ageController.text.trim()),
-                          int.parse(_weightController.text.trim()),
+                          nameController.text.trim(),
+                          int.parse(ageController.text.trim()),
+                          int.parse(weightController.text.trim()),
                         );
                         clearTextInput();
                         //Auth().getUser('documentId');
@@ -163,20 +152,9 @@ class _HomeState extends State<Home> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Validate returns true if the form is valid, or false otherwise.
-                      if (_formKey.currentState!.validate()) {
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(pColor),
-                        );
-
+                      {
                         // class method that updates  user data to cloud firestore when button is pressed
-                        Auth().deleteUser(
-                          _nameController.text.trim(),
-                          int.parse(_ageController.text.trim()),
-                          int.parse(_weightController.text.trim()),
-                        );
-                        clearTextInput();
-                        //Auth().getUser('documentId');
+                        Auth().deleteUser();
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text('Processing Data'),
@@ -191,53 +169,24 @@ class _HomeState extends State<Home> {
               const SizedBox(
                 height: 30,
               ),
-              Form(
-                key: _formKey1,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Name cannot be empty';
-                        }
-                        return null;
-                      },
-                      controller: _nameController2,
-                      keyboardType: TextInputType.text,
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.monitor_weight),
-                        labelText: 'Enter your name to view weight',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                            15,
-                          ),
-                        ),
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey1.currentState!.validate()) {
-                          setState(() {
-                            _isData = true;
-                          });
-                        } else {
-                          showErrorToast('Something went wrong');
-                        }
-                      },
-                      child: const Text('View Data'),
-                    )
-                  ],
-                ),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isData = true;
+                  });
+                },
+                child: const Text('View Saved Data'),
               ),
               Container(
-                child:
-                    _isData ? GetUserName(_nameController2.text.trim()) : null,
+                child: _isData ? GetUserData(userId) : null,
               ),
               const SizedBox(height: 60),
               Container(
                 margin: const EdgeInsets.only(bottom: 25),
                 child: ElevatedButton(
-                  onPressed: Auth().signOut,
+                  onPressed: () async {
+                    Auth().signOut();
+                  },
                   child: const Text('sign out'),
                 ),
               ),

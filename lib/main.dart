@@ -1,9 +1,9 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:weight_app/screen/home.dart';
+import 'package:weight_app/views/home.dart';
 
-import 'screen/sign_in.dart';
+import 'views/sign_in.dart';
 import 'widgets/components.dart';
 
 /*
@@ -13,8 +13,7 @@ TO Do
 -- circular progres indicator when connection state is loading
 -- study cloud fire documentation
 -- don't forget clean code and programming principles
--- think about logic for features (READ & WRITE from firebase cloudstore)
--- show success snackbar or indicator when user data is added 
+-- think about logic for features (READ & WRITE from firebase cloudstore) 
 
 
 */
@@ -37,20 +36,27 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class StarterPage extends StatelessWidget {
+class StarterPage extends StatefulWidget {
   const StarterPage({Key? key}) : super(key: key);
 
   @override
+  State<StarterPage> createState() => _StarterPageState();
+}
+
+class _StarterPageState extends State<StarterPage> {
+  @override
   Widget build(BuildContext context) {
+    final auth = FirebaseAuth.instance;
+
     return Scaffold(
       body: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
+        stream: auth.authStateChanges(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return loader;
+            loader;
           }
           if (snapshot.hasError) {
-            return loader;
+            showErrorToast('Failed to delete user');
           }
           if (snapshot.hasData) {
             return const Home();
