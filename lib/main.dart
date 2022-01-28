@@ -56,7 +56,7 @@ class _StarterPageState extends State<StarterPage> {
             loader;
           }
           if (snapshot.hasError) {
-            showErrorToast('Failed to delete user');
+            showErrorToast('Something went wrong ');
           }
           if (snapshot.hasData) {
             return const Home();

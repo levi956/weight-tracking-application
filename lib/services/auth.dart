@@ -13,6 +13,7 @@ var userId = userCred!.uid;
 
 class Auth {
   final FirebaseAuth auth = FirebaseAuth.instance;
+
   CollectionReference users = FirebaseFirestore.instance.collection('users');
   var userCred = FirebaseAuth.instance.currentUser;
 
@@ -34,31 +35,27 @@ class Auth {
   }
 
   Future<void> signinAnon(BuildContext context) async {
-    showLoader(context);
-    UserCredential user = await FirebaseAuth.instance.signInAnonymously();
-    var userCred = FirebaseAuth.instance.currentUser;
-    Navigator.pop(context);
-    var uid = userCred!.uid;
-    if (user != null) {
-      print("This is the user credentials " + uid);
+    try {
+      showLoader(context);
+      await auth.signInAnonymously();
+      Navigator.pop(context);
       showToast('signed In anonymously');
+    } catch (e) {
+      print(e);
     }
   }
 
   Future<void> signOut() async {
     try {
-      await FirebaseAuth.instance.signOut();
+      await auth.signOut();
       showToast('Signed out');
     } catch (e) {
-      print(e); // TODO: show dialog with error
-
+      print(e);
     }
   }
 
   //read to firestore
   Future<void> addUser(String name, int age, int weight) async {
-    // example fo gettig user uid
-    var userId = userCred!.uid;
     return users
         .doc(userId.toString())
         .set({'name': name, 'age': age, 'weight': weight, 'id': userId})
@@ -75,12 +72,18 @@ class Auth {
         .catchError((error) => showErrorToast('Failed: user not found'));
   }
 
+  // delete user weight
   Future<void> deleteUser() async {
-    return users
-        .doc(userId.toString())
-        .delete()
-        .then((value) => showToast('User data deleted'))
-        .catchError((error) => showErrorToast('Failed to delete user: $error'));
+    if (userId.isEmpty || userId == null) {
+      print('User not found');
+    } else {
+      return users
+          .doc(userId)
+          .delete()
+          .then((value) => showToast('User data deleted'))
+          .catchError(
+              (error) => showErrorToast('Failed to delete user: $error'));
+    }
   }
 }
 
@@ -115,7 +118,7 @@ class GetUserData extends StatelessWidget {
         }
 
         if (snapshot.connectionState == ConnectionState.done) {
-          final snapshotData = snapshot.data!.data();
+          var snapshotData = snapshot.data!.data();
           if (snapshotData == null) {
             return Container();
           } else {

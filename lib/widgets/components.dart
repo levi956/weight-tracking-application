@@ -3,10 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 // this file contains different widget components to aid builder method
 
-//var random = Random();
-//int userCollectionid = random.nextInt(10);
-//var userId = userCollectionid;
-
 // error toast dialog
 void showErrorToast(String label) {
   Fluttertoast.showToast(
@@ -33,9 +29,7 @@ Widget loader = Center(
 void showLoader(BuildContext context) {
   showDialog(
     context: context,
-    builder: (_) => Container(
-      child: const Center(child: CircularProgressIndicator()),
-    ),
+    builder: (_) => const Center(child: CircularProgressIndicator()),
   );
 }
 
