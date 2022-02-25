@@ -15,30 +15,33 @@ class Auth {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
   CollectionReference users = FirebaseFirestore.instance.collection('users');
-  var userCred = FirebaseAuth.instance.currentUser;
+  // var userCred = FirebaseAuth.instance.currentUser!;
 
-  Future<bool> signIn(String email, String password) async {
+  static Future<bool> signIn(String email, String password) async {
     try {
       // ignore: unused_local_variable
 
-      UserCredential user = await auth.signInWithEmailAndPassword(
-          email: email, password: password);
+      UserCredential user = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
       showToast('Signed In');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         showErrorToast('User not found');
       } else if (e.code == 'wrong-password') {
         showErrorToast('Invalid password');
+      } else if (e.code == 'invalid-email') {
+        showErrorToast('Invalid email');
       }
     }
     return false;
   }
 
-  Future<void> signinAnon(BuildContext context) async {
+// static  is a method defined as a member of a class but can
+// only be directly called without creating an object intstance
+  static Future<void> signinAnon() async {
     try {
-      showLoader(context);
-      await auth.signInAnonymously();
-      Navigator.pop(context);
+      await FirebaseAuth.instance.signInAnonymously();
+      // Navigator.pop(context);
       showToast('signed In anonymously');
     } catch (e) {
       print(e);

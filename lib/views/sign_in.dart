@@ -17,10 +17,7 @@ class _SignInState extends State<SignIn> {
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: const Text('Welcome to the weight application'),
-      ),
+      backgroundColor: Colors.transparent,
       body: Form(
         key: _formKey,
         child: Column(
@@ -47,19 +44,14 @@ class _SignInState extends State<SignIn> {
               padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  // Validate returns true if the form is valid, or false otherwise.
                   if (_formKey.currentState!.validate()) {
-                    CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(pColor),
-                    );
+                    signIn();
 
-                    Auth().signIn(_emailController.text.trim(),
-                        _passwordController.text.trim());
                     /*ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Processing Data'),
-                      ),
-                    ); */
+                        const SnackBar(
+                          content: Text('Processing Data'),
+                        ),
+                      ); */
                   }
                 },
                 child: const Text('sign in'),
@@ -70,7 +62,7 @@ class _SignInState extends State<SignIn> {
               margin: const EdgeInsets.only(bottom: 20),
               child: ElevatedButton(
                 onPressed: () {
-                  Auth().signinAnon(context);
+                  signInAnon();
                 },
                 child: const Text('Sign In As Guest'),
               ),
@@ -79,5 +71,23 @@ class _SignInState extends State<SignIn> {
         ),
       ),
     );
+  }
+
+  void signIn() async {
+    showLoader(context);
+    await Auth.signIn(
+        _emailController.text.trim(), _passwordController.text.trim());
+    Navigator.pop(context);
+  }
+
+  void signInAnon() async {
+    showLoader(context);
+    await Auth.signinAnon();
+    Navigator.pop(context);
+  }
+
+  @override
+  dispose() {
+    super.dispose();
   }
 }
